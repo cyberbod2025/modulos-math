@@ -82,7 +82,11 @@ export default function CompareModule({ onBack }: Props) {
         {Array.from({ length: wholes }).map((_, wIndex) => {
           const partsInThisWhole = Math.min(den, Math.max(0, num - wIndex * den));
           return (
-            <div key={wIndex} className="w-32 h-32 bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-lg p-1">
+            <div
+              key={wIndex}
+              className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-lg p-1 aspect-[4/3]"
+              style={{ width: 'clamp(120px, 26vw, 200px)' }}
+            >
               <div className="grid gap-1 w-full h-full" style={{
                 gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(den))}, minmax(0, 1fr))`,
                 gridTemplateRows: `repeat(${Math.ceil(den / Math.ceil(Math.sqrt(den)))}, minmax(0, 1fr))`

@@ -5,7 +5,7 @@ interface MathEquationProps {
   fractionA: { num: number; den: number };
   fractionB: { num: number; den: number };
   showResult: boolean;
-  operation?: '+' | '-' | 'x';
+  operation?: '+' | '-' | 'x' | '÷';
   result?: { num: number; den: number };
   commonDen?: number;
   aNumCommon?: number;
@@ -22,8 +22,12 @@ export const MathEquation: React.FC<MathEquationProps> = ({
   aNumCommon,
   bNumCommon
 }) => {
-  const resultNum = result ? result.num : fractionA.num * fractionB.num;
-  const resultDen = result ? result.den : fractionA.den * fractionB.den;
+  const computedResult = operation === '÷'
+    ? { num: fractionA.num * fractionB.den, den: fractionA.den * fractionB.num }
+    : { num: fractionA.num * fractionB.num, den: fractionA.den * fractionB.den };
+
+  const resultNum = result ? result.num : computedResult.num;
+  const resultDen = result ? result.den : computedResult.den;
 
   const displayA = commonDen ? { num: aNumCommon!, den: commonDen } : fractionA;
   const displayB = commonDen ? { num: bNumCommon!, den: commonDen } : fractionB;

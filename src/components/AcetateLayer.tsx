@@ -12,6 +12,8 @@ interface AcetateLayerProps {
   isVisible?: boolean;
   isDraggable?: boolean;
   isOverlapped?: boolean;
+  showBackground?: boolean;
+  showBorder?: boolean;
   onDragEnd?: () => void;
   style?: React.CSSProperties;
   dragConstraints?: React.RefObject<Element>;
@@ -28,6 +30,8 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
   isVisible = true,
   isDraggable = false,
   isOverlapped = false,
+  showBackground = true,
+  showBorder = true,
   onDragEnd,
   style,
   dragConstraints,
@@ -76,7 +80,7 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
       transition={{ duration: 0.5 }}
     >
       {/* Background (Transparent Acetate) */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />
+      {showBackground && <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />}
 
       {/* Colored Part (Normal, fades out on overlap) */}
       <div
@@ -104,7 +108,9 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
       </svg>
       
       {/* Border for the whole square */}
-      <div className={`absolute inset-0 border-2 ${borderColor} pointer-events-none rounded-lg opacity-50`} />
+      {showBorder && (
+        <div className={`absolute inset-0 border-2 ${borderColor} pointer-events-none rounded-lg opacity-50`} />
+      )}
     </motion.div>
   );
 };

@@ -383,9 +383,9 @@ export default function AddSubModule({ onBack }: Props) {
                 <div className="flex flex-wrap justify-center gap-8 items-center w-full">
                   {/* Fraction A */}
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-48 h-48 bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(250,204,21,0.1)]">
-                      {renderGrid(fractionA.num, fractionA.den, 'bg-yellow-400 border-yellow-500', step >= 2 && denType === 'diff' ? commonDen : undefined)}
-                    </div>
+                     <div className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(250,204,21,0.1)] aspect-square" style={{ width: 'clamp(120px, 28vw, 192px)' }}>
+                       {renderGrid(fractionA.num, fractionA.den, 'bg-yellow-400 border-yellow-500', step >= 2 && denType === 'diff' ? commonDen : undefined)}
+                     </div>
                     <span className="text-yellow-400 font-bold">
                       {step >= 2 && denType === 'diff' ? `${aNumCommon}/${commonDen}` : `${fractionA.num}/${fractionA.den}`}
                     </span>
@@ -395,9 +395,9 @@ export default function AddSubModule({ onBack }: Props) {
 
                   {/* Fraction B */}
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-48 h-48 bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(6,182,212,0.1)]">
-                      {renderGrid(fractionB.num, fractionB.den, 'bg-cyan-400 border-cyan-500', step >= 2 && denType === 'diff' ? commonDen : undefined)}
-                    </div>
+                     <div className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(6,182,212,0.1)] aspect-square" style={{ width: 'clamp(120px, 28vw, 192px)' }}>
+                       {renderGrid(fractionB.num, fractionB.den, 'bg-cyan-400 border-cyan-500', step >= 2 && denType === 'diff' ? commonDen : undefined)}
+                     </div>
                     <span className="text-cyan-400 font-bold">
                       {step >= 2 && denType === 'diff' ? `${bNumCommon}/${commonDen}` : `${fractionB.num}/${fractionB.den}`}
                     </span>
@@ -411,7 +411,8 @@ export default function AddSubModule({ onBack }: Props) {
                         <motion.div 
                           initial={{ scale: 0.8, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className="w-48 h-48 bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+                          className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_30px_rgba(16,185,129,0.2)] aspect-square"
+                          style={{ width: 'clamp(120px, 28vw, 192px)' }}
                         >
                           {renderGrid(resultNum, commonDen, 'bg-emerald-400 border-emerald-500')}
                         </motion.div>
