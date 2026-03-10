@@ -136,7 +136,7 @@ export default function AddSubModule({ onBack }: Props) {
     const pNum = parseInt(practiceAnswer.num);
     const pDen = parseInt(practiceAnswer.den);
     
-    if (isNaN(pNum) || isNaN(pDen)) return;
+    if (isNaN(pNum) || isNaN(pDen) || pDen <= 0) return;
 
     let expectedNum = 0;
     let expectedDen = 1;
@@ -476,21 +476,23 @@ export default function AddSubModule({ onBack }: Props) {
                 
                 {practiceStatus === 'question' ? (
                   <div className="flex flex-col items-center gap-2">
-                    <input
-                      type="number"
-                      value={practiceAnswer.num}
-                      onChange={(e) => setPracticeAnswer(p => ({ ...p, num: e.target.value }))}
-                      className="w-20 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-3xl text-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                      placeholder="?"
-                    />
+                      <input
+                        type="number"
+                        value={practiceAnswer.num}
+                        onChange={(e) => setPracticeAnswer(p => ({ ...p, num: e.target.value }))}
+                        className="w-20 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-3xl text-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                        placeholder="?"
+                        min="0"
+                      />
                     <div className="w-full h-1 bg-slate-700 rounded-full" />
-                    <input
-                      type="number"
-                      value={practiceAnswer.den}
-                      onChange={(e) => setPracticeAnswer(p => ({ ...p, den: e.target.value }))}
-                      className="w-20 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-3xl text-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                      placeholder="?"
-                    />
+                      <input
+                        type="number"
+                        value={practiceAnswer.den}
+                        onChange={(e) => setPracticeAnswer(p => ({ ...p, den: e.target.value }))}
+                        className="w-20 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-3xl text-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                        placeholder="?"
+                        min="1"
+                      />
                   </div>
                 ) : (
                   <motion.div 

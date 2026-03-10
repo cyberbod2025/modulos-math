@@ -45,6 +45,8 @@ export default function PartWholeModule({ onBack }: Props) {
     const pNum = parseInt(practiceAnswer.num);
     const pDen = parseInt(practiceAnswer.den);
     
+    if (isNaN(pNum) || isNaN(pDen) || pDen <= 0) return;
+
     if (pNum === fraction.num && pDen === fraction.den) {
       setPracticeStatus('correct');
       setScore(s => ({ ...s, correct: s.correct + 1, total: s.total + 1 }));
@@ -190,6 +192,7 @@ export default function PartWholeModule({ onBack }: Props) {
                     onChange={(e) => setPracticeAnswer(p => ({ ...p, num: e.target.value }))}
                     className="w-24 h-20 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-4xl text-pink-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
                     placeholder="?"
+                    min="0"
                   />
                   <div className="w-full h-1.5 bg-slate-700 rounded-full" />
                   <input
@@ -198,6 +201,7 @@ export default function PartWholeModule({ onBack }: Props) {
                     onChange={(e) => setPracticeAnswer(p => ({ ...p, den: e.target.value }))}
                     className="w-24 h-20 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-4xl text-pink-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
                     placeholder="?"
+                    min="1"
                   />
                 </div>
               ) : (

@@ -343,6 +343,7 @@ export default function MultiplicationModule({ onBack }: Props) {
                     }`}
                     disabled={practiceStatus === 'correct'}
                     placeholder="?"
+                    min="0"
                     animate={practiceStatus === 'incorrect' ? { x: [-5, 5, -5, 5, 0] } : practiceStatus === 'correct' ? { scale: [1, 1.1, 1] } : {}}
                     transition={{ duration: 0.4 }}
                   />
@@ -362,6 +363,7 @@ export default function MultiplicationModule({ onBack }: Props) {
                     }`}
                     disabled={practiceStatus === 'correct'}
                     placeholder="?"
+                    min="1"
                     animate={practiceStatus === 'incorrect' ? { x: [-5, 5, -5, 5, 0] } : practiceStatus === 'correct' ? { scale: [1, 1.1, 1] } : {}}
                     transition={{ duration: 0.4 }}
                   />
@@ -372,14 +374,15 @@ export default function MultiplicationModule({ onBack }: Props) {
                 <button 
                   onClick={() => {
                     if (!practiceAnswer.num || !practiceAnswer.den) return;
-                    
+                    const pNum = parseInt(practiceAnswer.num);
+                    const pDen = parseInt(practiceAnswer.den);
+                    if (isNaN(pNum) || isNaN(pDen) || pDen <= 0) return;
+
                     const expectedNum = fractionA.num * (multType === 'frac-frac' ? fractionB.num : wholeNumber);
                     const expectedDen = fractionA.den * (multType === 'frac-frac' ? fractionB.den : 1);
-                    
-                    const isCorrect = 
-                      (parseInt(practiceAnswer.num) / parseInt(practiceAnswer.den)) === 
-                      (expectedNum / expectedDen);
-                    
+
+                    const isCorrect = (pNum / pDen) === (expectedNum / expectedDen);
+
                     setPracticeStatus(isCorrect ? 'correct' : 'incorrect');
                     setScore(s => ({ correct: s.correct + (isCorrect ? 1 : 0), total: s.total + 1 }));
                   }}

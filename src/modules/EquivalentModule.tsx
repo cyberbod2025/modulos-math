@@ -227,6 +227,7 @@ export default function EquivalentModule({ onBack }: Props) {
                       onChange={(e) => setPracticeAnswer(e.target.value)}
                       className="w-24 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-4xl text-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all mb-2"
                       placeholder="?"
+                      min={practiceProblem.missing === 'denA' ? 1 : 0}
                     />
                   ) : (
                     <span className="border-b-4 border-emerald-400/50 px-4 pb-2 mb-2">{practiceProblem.numA}</span>
@@ -239,6 +240,7 @@ export default function EquivalentModule({ onBack }: Props) {
                       onChange={(e) => setPracticeAnswer(e.target.value)}
                       className="w-24 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-4xl text-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                       placeholder="?"
+                      min={practiceProblem.missing === 'denA' ? 1 : 0}
                     />
                   ) : (
                     <span>{practiceProblem.denA}</span>
@@ -255,6 +257,7 @@ export default function EquivalentModule({ onBack }: Props) {
                       onChange={(e) => setPracticeAnswer(e.target.value)}
                       className="w-24 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-4xl text-cyan-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all mb-2"
                       placeholder="?"
+                      min={practiceProblem.missing === 'denB' ? 1 : 0}
                     />
                   ) : (
                     <span className="border-b-4 border-cyan-400/50 px-4 pb-2 mb-2">{practiceProblem.numB}</span>
@@ -267,6 +270,7 @@ export default function EquivalentModule({ onBack }: Props) {
                       onChange={(e) => setPracticeAnswer(e.target.value)}
                       className="w-24 h-16 bg-slate-950 border-2 border-slate-700 rounded-xl text-center text-4xl text-cyan-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
                       placeholder="?"
+                      min={practiceProblem.missing === 'denB' ? 1 : 0}
                     />
                   ) : (
                     <span>{practiceProblem.denB}</span>
