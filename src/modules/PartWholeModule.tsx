@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FractionInput } from '../components/FractionInput';
 import { ArrowLeft, PieChart, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
@@ -16,17 +16,28 @@ export default function PartWholeModule({ onBack }: Props) {
   const [practiceAnswer, setPracticeAnswer] = useState({ num: '', den: '' });
   const [practiceStatus, setPracticeStatus] = useState<'question' | 'correct' | 'incorrect'>('question');
   const [score, setScore] = useState({ correct: 0, total: 0 });
+  const lastProblemKey = useRef('');
 
   const generateProblem = (diff: 'facil' | 'medio' | 'dificil') => {
     let minDen = 2, maxDen = 6;
     if (diff === 'medio') { minDen = 4; maxDen = 10; }
     if (diff === 'dificil') { minDen = 6; maxDen = 16; }
-    
-    const den = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    // For part-whole, usually we keep it as a proper fraction
-    const num = Math.floor(Math.random() * den) + 1; 
-    
-    setFraction({ num, den });
+
+    let next = { num: 1, den: minDen };
+    let key = '';
+
+    for (let tries = 0; tries < 20; tries++) {
+      const den = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      const num = Math.floor(Math.random() * (den * 2)) + 1;
+      key = `${num}/${den}`;
+      if (key !== lastProblemKey.current || tries === 19) {
+        next = { num, den };
+        break;
+      }
+    }
+
+    lastProblemKey.current = key;
+    setFraction(next);
     setPracticeAnswer({ num: '', den: '' });
     setPracticeStatus('question');
   };
@@ -134,6 +145,7 @@ export default function PartWholeModule({ onBack }: Props) {
                 onChange={setFraction} 
                 color="text-pink-400" 
                 borderColor="border-pink-500/50" 
+                allowImproper
               />
             </div>
 
@@ -153,7 +165,7 @@ export default function PartWholeModule({ onBack }: Props) {
 
         {mode === 'practice' && (
           <div className="w-full max-w-3xl flex flex-col items-center">
-            <div className="w-full flex justify-between items-center mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
+            <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
               <div className="flex gap-2">
                 {['facil', 'medio', 'dificil'].map((d) => (
                   <button
@@ -169,11 +181,19 @@ export default function PartWholeModule({ onBack }: Props) {
                   </button>
                 ))}
               </div>
-              <div className="text-slate-300 font-bold flex items-center gap-2">
-                <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
-                <span className="text-xl text-emerald-400">{score.correct}</span>
-                <span className="text-slate-600">/</span>
-                <span className="text-xl">{score.total}</span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => generateProblem(difficulty)}
+                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-slate-700 transition-all border border-slate-700"
+                >
+                  Nueva Práctica
+                </button>
+                <div className="text-slate-300 font-bold flex items-center gap-2">
+                  <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
+                  <span className="text-xl text-emerald-400">{score.correct}</span>
+                  <span className="text-slate-600">/</span>
+                  <span className="text-xl">{score.total}</span>
+                </div>
               </div>
             </div>
 

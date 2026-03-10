@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FractionInput } from '../components/FractionInput';
 import { ArrowLeft, Equal, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
@@ -20,24 +20,37 @@ export default function EquivalentModule({ onBack }: Props) {
   const [practiceAnswer, setPracticeAnswer] = useState('');
   const [practiceStatus, setPracticeStatus] = useState<'question' | 'correct' | 'incorrect'>('question');
   const [score, setScore] = useState({ correct: 0, total: 0 });
+  const lastProblemKey = useRef('');
 
   const generateProblem = (diff: 'facil' | 'medio' | 'dificil') => {
     let minDen = 2, maxDen = 5;
     let maxMult = 3;
     if (diff === 'medio') { minDen = 3; maxDen = 8; maxMult = 5; }
     if (diff === 'dificil') { minDen = 4; maxDen = 12; maxMult = 8; }
-    
-    const denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    const numA = Math.floor(Math.random() * (denA - 1)) + 1; 
-    const mult = Math.floor(Math.random() * (maxMult - 2 + 1)) + 2;
-    
-    const numB = numA * mult;
-    const denB = denA * mult;
-    
-    const missingOptions = ['numA', 'denA', 'numB', 'denB'];
-    const missing = missingOptions[Math.floor(Math.random() * missingOptions.length)];
-    
-    setPracticeProblem({ numA, denA, numB, denB, missing });
+
+    let next = { numA: 1, denA: minDen, numB: 2, denB: minDen * 2, missing: 'numB' };
+    let key = '';
+
+    for (let tries = 0; tries < 20; tries++) {
+      const denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      const numA = Math.floor(Math.random() * (denA - 1)) + 1;
+      const mult = Math.floor(Math.random() * (maxMult - 2 + 1)) + 2;
+
+      const numB = numA * mult;
+      const denB = denA * mult;
+
+      const missingOptions = ['numA', 'denA', 'numB', 'denB'];
+      const missing = missingOptions[Math.floor(Math.random() * missingOptions.length)];
+
+      key = `${numA}/${denA}|${numB}/${denB}|${missing}`;
+      if (key !== lastProblemKey.current || tries === 19) {
+        next = { numA, denA, numB, denB, missing };
+        break;
+      }
+    }
+
+    lastProblemKey.current = key;
+    setPracticeProblem(next);
     setPracticeAnswer('');
     setPracticeStatus('question');
   };
@@ -150,6 +163,7 @@ export default function EquivalentModule({ onBack }: Props) {
                   onChange={setFractionA} 
                   color="text-emerald-400" 
                   borderColor="border-emerald-500/50" 
+                  allowImproper
                 />
                 {renderFractionVisual(fractionA.num, fractionA.den, 'bg-emerald-400 border-emerald-500')}
               </div>
@@ -191,7 +205,7 @@ export default function EquivalentModule({ onBack }: Props) {
 
         {mode === 'practice' && (
           <div className="w-full max-w-3xl flex flex-col items-center">
-            <div className="w-full flex justify-between items-center mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
+            <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
               <div className="flex gap-2">
                 {['facil', 'medio', 'dificil'].map((d) => (
                   <button
@@ -207,11 +221,19 @@ export default function EquivalentModule({ onBack }: Props) {
                   </button>
                 ))}
               </div>
-              <div className="text-slate-300 font-bold flex items-center gap-2">
-                <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
-                <span className="text-xl text-emerald-400">{score.correct}</span>
-                <span className="text-slate-600">/</span>
-                <span className="text-xl">{score.total}</span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => generateProblem(difficulty)}
+                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-slate-700 transition-all border border-slate-700"
+                >
+                  Nueva Práctica
+                </button>
+                <div className="text-slate-300 font-bold flex items-center gap-2">
+                  <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
+                  <span className="text-xl text-emerald-400">{score.correct}</span>
+                  <span className="text-slate-600">/</span>
+                  <span className="text-xl">{score.total}</span>
+                </div>
               </div>
             </div>
 

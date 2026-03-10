@@ -9,6 +9,8 @@ type FractionInputProps = {
   borderColor?: string;
   maxDenominator?: number;
   disabledDen?: boolean;
+  allowImproper?: boolean;
+  maxNumerator?: number;
 } & (
   | {
       value: FractionValue;
@@ -27,11 +29,14 @@ export const FractionInput: React.FC<FractionInputProps> = ({
   borderColor,
   maxDenominator = 12,
   disabledDen = false,
+  allowImproper = false,
+  maxNumerator,
   ...rest
 }) => {
   const isValueProps = 'value' in rest;
   const numerator = isValueProps ? rest.value.num : rest.numerator;
   const denominator = isValueProps ? rest.value.den : rest.denominator;
+  const resolvedMaxNumerator = maxNumerator ?? (allowImproper ? Number.MAX_SAFE_INTEGER : denominator);
 
   const commitChange = (newNum: number, newDen: number) => {
     if (isValueProps) {
@@ -43,7 +48,7 @@ export const FractionInput: React.FC<FractionInputProps> = ({
 
   const handleNumeratorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = parseInt(e.target.value);
-    const val = Math.max(0, Math.min(denominator, isNaN(raw) ? 0 : raw));
+    const val = Math.max(0, Math.min(resolvedMaxNumerator, isNaN(raw) ? 0 : raw));
     commitChange(val, denominator);
   };
 
@@ -64,7 +69,7 @@ export const FractionInput: React.FC<FractionInputProps> = ({
           onChange={handleNumeratorChange}
           className="w-20 h-16 text-center text-3xl font-black bg-slate-900/50 border-2 border-slate-700 rounded-xl outline-none focus:border-current focus:shadow-[0_0_15px_currentColor] transition-all"
           min="0"
-          max={denominator}
+          max={resolvedMaxNumerator}
         />
         <div className="w-16 h-1 bg-current rounded-full opacity-50"></div>
         <input

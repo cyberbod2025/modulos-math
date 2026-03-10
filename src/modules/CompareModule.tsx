@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FractionInput } from '../components/FractionInput';
 import { ArrowLeft, ArrowLeftRight, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
@@ -16,20 +16,35 @@ export default function CompareModule({ onBack }: Props) {
   
   const [practiceStatus, setPracticeStatus] = useState<'question' | 'correct' | 'incorrect'>('question');
   const [score, setScore] = useState({ correct: 0, total: 0 });
+  const lastProblemKey = useRef('');
 
   const generateProblem = (diff: 'facil' | 'medio' | 'dificil') => {
     let minDen = 2, maxDen = 6;
     if (diff === 'medio') { minDen = 3; maxDen = 9; }
     if (diff === 'dificil') { minDen = 5; maxDen = 15; }
-    
-    const denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    const numA = Math.floor(Math.random() * denA) + 1; 
-    
-    const denB = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    const numB = Math.floor(Math.random() * denB) + 1; 
-    
-    setFractionA({ num: numA, den: denA });
-    setFractionB({ num: numB, den: denB });
+
+    let nextA = { num: 1, den: minDen };
+    let nextB = { num: 1, den: minDen };
+    let key = '';
+
+    for (let tries = 0; tries < 20; tries++) {
+      const denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      const numA = Math.floor(Math.random() * denA) + 1;
+
+      const denB = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      const numB = Math.floor(Math.random() * denB) + 1;
+
+      key = `${numA}/${denA}|${numB}/${denB}`;
+      if (key !== lastProblemKey.current || tries === 19) {
+        nextA = { num: numA, den: denA };
+        nextB = { num: numB, den: denB };
+        break;
+      }
+    }
+
+    lastProblemKey.current = key;
+    setFractionA(nextA);
+    setFractionB(nextB);
     setPracticeStatus('question');
   };
 
@@ -146,6 +161,7 @@ export default function CompareModule({ onBack }: Props) {
                   onChange={setFractionA} 
                   color="text-yellow-400" 
                   borderColor="border-yellow-500/50" 
+                  allowImproper
                 />
                 {renderFractionVisual(fractionA.num, fractionA.den, 'bg-yellow-400 border-yellow-500')}
               </div>
@@ -160,6 +176,7 @@ export default function CompareModule({ onBack }: Props) {
                   onChange={setFractionB} 
                   color="text-cyan-400" 
                   borderColor="border-cyan-500/50" 
+                  allowImproper
                 />
                 {renderFractionVisual(fractionB.num, fractionB.den, 'bg-cyan-400 border-cyan-500')}
               </div>
@@ -177,7 +194,7 @@ export default function CompareModule({ onBack }: Props) {
 
         {mode === 'practice' && (
           <div className="w-full max-w-3xl flex flex-col items-center">
-            <div className="w-full flex justify-between items-center mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
+            <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
               <div className="flex gap-2">
                 {['facil', 'medio', 'dificil'].map((d) => (
                   <button
@@ -193,11 +210,19 @@ export default function CompareModule({ onBack }: Props) {
                   </button>
                 ))}
               </div>
-              <div className="text-slate-300 font-bold flex items-center gap-2">
-                <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
-                <span className="text-xl text-emerald-400">{score.correct}</span>
-                <span className="text-slate-600">/</span>
-                <span className="text-xl">{score.total}</span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => generateProblem(difficulty)}
+                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-slate-700 transition-all border border-slate-700"
+                >
+                  Nueva Práctica
+                </button>
+                <div className="text-slate-300 font-bold flex items-center gap-2">
+                  <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
+                  <span className="text-xl text-emerald-400">{score.correct}</span>
+                  <span className="text-slate-600">/</span>
+                  <span className="text-xl">{score.total}</span>
+                </div>
               </div>
             </div>
 

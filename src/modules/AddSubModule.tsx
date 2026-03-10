@@ -26,6 +26,7 @@ export default function AddSubModule({ onBack }: Props) {
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 300, height: 300 });
+  const lastProblemKey = useRef('');
 
   useEffect(() => {
     const updateSize = () => {
@@ -43,31 +44,44 @@ export default function AddSubModule({ onBack }: Props) {
     let minDen = 2, maxDen = 5;
     if (diff === 'medio') { minDen = 3; maxDen = 8; }
     if (diff === 'dificil') { minDen = 5; maxDen = 12; }
-    
-    let denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    let numA = Math.floor(Math.random() * (denA - 1)) + 1;
-    
-    let denB = denType === 'same' ? denA : Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    if (denType === 'diff' && denA === denB) {
-      denB = denB === maxDen ? minDen : denB + 1;
-    }
-    
-    let numB = Math.floor(Math.random() * (denB - 1)) + 1;
 
-    // For subtraction, ensure A >= B
-    if (operation === 'sub') {
-      const valA = numA / denA;
-      const valB = numB / denB;
-      if (valB > valA) {
-        // Swap
-        const tempNum = numA; const tempDen = denA;
-        numA = numB; denA = denB;
-        numB = tempNum; denB = tempDen;
+    let nextA = { num: 1, den: minDen };
+    let nextB = { num: 1, den: minDen };
+    let key = '';
+
+    for (let tries = 0; tries < 20; tries++) {
+      let denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      let numA = Math.floor(Math.random() * (denA - 1)) + 1;
+
+      let denB = denType === 'same' ? denA : Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      if (denType === 'diff' && denA === denB) {
+        denB = denB === maxDen ? minDen : denB + 1;
+      }
+
+      let numB = Math.floor(Math.random() * (denB - 1)) + 1;
+
+      // For subtraction, ensure A >= B
+      if (operation === 'sub') {
+        const valA = numA / denA;
+        const valB = numB / denB;
+        if (valB > valA) {
+          const tempNum = numA; const tempDen = denA;
+          numA = numB; denA = denB;
+          numB = tempNum; denB = tempDen;
+        }
+      }
+
+      key = `${numA}/${denA}|${numB}/${denB}|${operation}|${denType}`;
+      if (key !== lastProblemKey.current || tries === 19) {
+        nextA = { num: numA, den: denA };
+        nextB = { num: numB, den: denB };
+        break;
       }
     }
-    
-    setFractionA({ num: numA, den: denA });
-    setFractionB({ num: numB, den: denB });
+
+    lastProblemKey.current = key;
+    setFractionA(nextA);
+    setFractionB(nextB);
 
     setStep(0);
     setPracticeAnswer({ num: '', den: '' });
@@ -338,6 +352,7 @@ export default function AddSubModule({ onBack }: Props) {
                       onChange={setFractionA} 
                       color="text-yellow-400" 
                       borderColor="border-yellow-500/50" 
+                      allowImproper
                     />
                     <span className="text-slate-500">{operation === 'add' ? '+' : '-'}</span>
                     <FractionInput 
@@ -346,6 +361,7 @@ export default function AddSubModule({ onBack }: Props) {
                       color="text-cyan-400" 
                       borderColor="border-cyan-500/50" 
                       disabledDen={denType === 'same'}
+                      allowImproper
                     />
                   </>
                 ) : (
@@ -435,7 +451,7 @@ export default function AddSubModule({ onBack }: Props) {
         {mode === 'practice' && (
           <div className="w-full max-w-3xl flex flex-col items-center">
             {/* Practice Mode UI */}
-            <div className="w-full flex justify-between items-center mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
+            <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 shadow-lg">
               <div className="flex gap-2">
                 {['facil', 'medio', 'dificil'].map((d) => (
                   <button
@@ -451,11 +467,19 @@ export default function AddSubModule({ onBack }: Props) {
                   </button>
                 ))}
               </div>
-              <div className="text-slate-300 font-bold flex items-center gap-2">
-                <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
-                <span className="text-xl text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">{score.correct}</span>
-                <span className="text-slate-600">/</span>
-                <span className="text-xl">{score.total}</span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => generateProblem(difficulty)}
+                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-slate-700 transition-all border border-slate-700"
+                >
+                  Nueva Práctica
+                </button>
+                <div className="text-slate-300 font-bold flex items-center gap-2">
+                  <span className="text-sm uppercase tracking-wider text-slate-500">Puntuación:</span>
+                  <span className="text-xl text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">{score.correct}</span>
+                  <span className="text-slate-600">/</span>
+                  <span className="text-xl">{score.total}</span>
+                </div>
               </div>
             </div>
 

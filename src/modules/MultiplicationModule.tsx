@@ -31,6 +31,7 @@ export default function MultiplicationModule({ onBack }: Props) {
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 300, height: 300 });
+  const lastProblemKey = useRef('');
 
   useEffect(() => {
     const updateSize = () => {
@@ -48,21 +49,41 @@ export default function MultiplicationModule({ onBack }: Props) {
     let minDen = 2, maxDen = 5;
     if (diff === 'medio') { minDen = 3; maxDen = 8; }
     if (diff === 'dificil') { minDen = 5; maxDen = 12; }
-    
-    const denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-    const numA = Math.floor(Math.random() * (denA - 1)) + 1;
-    
-    setFractionA({ num: numA, den: denA });
 
-    if (multType === 'frac-frac') {
-      const denB = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
-      const numB = Math.floor(Math.random() * (denB - 1)) + 1;
-      setFractionB({ num: numB, den: denB });
-    } else {
-      const whole = Math.floor(Math.random() * 4) + 2; // 2 to 5
-      setWholeNumber(whole);
-      setFractionB({ num: whole, den: 1 }); // For explanation component compatibility
+    let nextA = { num: 1, den: minDen };
+    let nextB = { num: 1, den: minDen };
+    let nextWhole = 2;
+    let key = '';
+
+    for (let tries = 0; tries < 20; tries++) {
+      const denA = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+      const numA = Math.floor(Math.random() * (denA - 1)) + 1;
+
+      if (multType === 'frac-frac') {
+        const denB = Math.floor(Math.random() * (maxDen - minDen + 1)) + minDen;
+        const numB = Math.floor(Math.random() * (denB - 1)) + 1;
+        key = `${numA}/${denA}|${numB}/${denB}|${multType}`;
+        if (key !== lastProblemKey.current || tries === 19) {
+          nextA = { num: numA, den: denA };
+          nextB = { num: numB, den: denB };
+          break;
+        }
+      } else {
+        const whole = Math.floor(Math.random() * 4) + 2;
+        key = `${numA}/${denA}|${whole}|${multType}`;
+        if (key !== lastProblemKey.current || tries === 19) {
+          nextA = { num: numA, den: denA };
+          nextWhole = whole;
+          nextB = { num: whole, den: 1 };
+          break;
+        }
+      }
     }
+
+    lastProblemKey.current = key;
+    setFractionA(nextA);
+    setFractionB(nextB);
+    setWholeNumber(nextWhole);
 
     setStep(0);
     setPracticeAnswer({ num: '', den: '' });
@@ -246,6 +267,7 @@ export default function MultiplicationModule({ onBack }: Props) {
                   setFractionA({ num: n, den: d });
                   if (step === 3) setStep(2);
                 }}
+                allowImproper
               />
               
               {multType === 'frac-frac' ? (
@@ -258,6 +280,7 @@ export default function MultiplicationModule({ onBack }: Props) {
                     setFractionB({ num: n, den: d });
                     if (step === 3) setStep(2);
                   }}
+                  allowImproper
                 />
               ) : (
                 <div className="flex flex-col items-center">
@@ -301,11 +324,19 @@ export default function MultiplicationModule({ onBack }: Props) {
                   </button>
                 ))}
               </div>
-              <div className="text-center sm:text-right bg-slate-950 px-6 py-3 rounded-xl border border-slate-800">
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Puntuación</p>
-                <p className="text-3xl font-black text-purple-400 leading-none drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">
-                  {score.correct} <span className="text-slate-600 text-xl">/ {score.total}</span>
-                </p>
+              <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-right">
+                <button
+                  onClick={() => generateProblem(difficulty)}
+                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-slate-700 transition-all border border-slate-700"
+                >
+                  Nueva Práctica
+                </button>
+                <div className="bg-slate-950 px-6 py-3 rounded-xl border border-slate-800">
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Puntuación</p>
+                  <p className="text-3xl font-black text-purple-400 leading-none drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">
+                    {score.correct} <span className="text-slate-600 text-xl">/ {score.total}</span>
+                  </p>
+                </div>
               </div>
             </div>
             
