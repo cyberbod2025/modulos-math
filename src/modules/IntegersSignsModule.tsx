@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Compass, Brain, ArrowLeft, RefreshCw, Layers, CheckCircle2, AlertCircle, ArrowRight, Zap } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 
 interface Props {
   onBack: () => void;
@@ -283,6 +284,10 @@ export default function IntegersSignsModule({ onBack }: Props) {
           </div>
         )}
 
+              <DailyLifeUses uses={[
+    { title: "Cancelación de Deudas", description: "Si el banco te 'quita' (-) una 'deuda' (-), en la vida real estás ganando dinero. Por eso, quitar algo negativo es igual a tener algo positivo: (-) × (-) = (+)." },
+    { title: "Fuerzas Físicas Opuestas", description: "En ingeniería y física cuántica, si aplicas una fuerza opuesta a un movimiento retrocediendo, el resultado neto cambia de sentido." }
+  ]} />
       </main>
     </div>
   );

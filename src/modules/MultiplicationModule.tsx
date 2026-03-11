@@ -7,6 +7,7 @@ import { Explanation } from '../components/Explanation';
 import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { PracticeExplanation } from '../components/PracticeExplanation';
 import { RefreshCw, ArrowRight, Layers, CheckCircle2, Compass, Brain, ArrowLeft, XSquare } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 import { VisualShape } from '../types/visual';
 
 interface Props {
@@ -407,9 +408,63 @@ export default function MultiplicationModule({ onBack, visualShape, onShapeChang
               result={divisionResult}
             />
 
-            <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 max-w-2xl text-center">
-              <p className="text-lg text-slate-300 leading-relaxed">
-                Para dividir fracciones, se multiplica por el recíproco de la segunda fracción.
+            {/* In-depth Visual Explanation Segment for Division */}
+            <div className="w-full flex flex-col md:flex-row gap-6 mt-8">
+              <div className="flex-1 bg-slate-950/50 p-6 rounded-2xl border border-slate-800 shadow-inner">
+                <h3 className="text-emerald-400 font-bold mb-3 flex items-center gap-2">
+                  <RefreshCw size={18} /> Método 1: El Recíproco (Invertir)
+                </h3>
+                <p className="text-sm text-slate-300 mb-6">
+                  El "recíproco" de una fracción es simplemente voltearla (intercambiar el numerador con el denominador). Dividir es exactamente lo mismo que <strong>multiplicar por su recíproco</strong>.
+                </p>
+                <div className="flex items-center justify-center gap-4 text-xl bg-slate-900 border border-slate-700/50 p-4 rounded-xl">
+                  <MathEquation fractionA={fractionA} fractionB={fractionBValue} operation="÷" showResult={false} />
+                  <ArrowRight className="text-slate-500" />
+                  <MathEquation fractionA={fractionA} fractionB={{ num: fractionBValue.den, den: fractionBValue.num }} operation="×" showResult={true} result={divisionResult} />
+                </div>
+              </div>
+              
+              <div className="flex-1 bg-slate-950/50 p-6 rounded-2xl border border-slate-800 shadow-inner">
+                <h3 className="text-cyan-400 font-bold mb-3 flex items-center gap-2">
+                  <XSquare size={18} /> Método 2: Mult. Cruzada (Zig-zag)
+                </h3>
+                <p className="text-sm text-slate-300 mb-6">
+                  Multiplicas de forma cruzada trazando un zig-zag: el numerador de A por el denominador de B te da el <strong>nuevo numerador</strong>. Y el denominador de A por el num. de B da el <strong>nuevo denominador</strong>.
+                </p>
+                <div className="flex justify-center items-center h-[88px] text-slate-200 bg-slate-900 border border-slate-700/50 rounded-xl relative overflow-hidden">
+                  {/* Visual Zig-Zag lines */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+                    <line x1="38%" y1="25%" x2="52%" y2="75%" stroke="#06b6d4" strokeWidth="2" strokeDasharray="4 4" />
+                    <line x1="38%" y1="75%" x2="52%" y2="25%" stroke="#10b981" strokeWidth="2" strokeDasharray="4 4" />
+                  </svg>
+                  
+                  <div className="relative inline-flex flex-col items-center z-10">
+                    <span className="text-yellow-400 font-bold">{fractionA.num}</span>
+                    <span className="w-6 h-0.5 bg-slate-600 my-1"></span>
+                    <span className="text-yellow-400 font-bold">{fractionA.den}</span>
+                  </div>
+                  <span className="mx-6 text-slate-500 z-10">÷</span>
+                  <div className="relative inline-flex flex-col items-center z-10">
+                    <span className="text-cyan-400 font-bold">{fractionBValue.num}</span>
+                    <span className="w-6 h-0.5 bg-slate-600 my-1"></span>
+                    <span className="text-cyan-400 font-bold">{fractionBValue.den}</span>
+                  </div>
+                  <span className="mx-6 text-emerald-400 z-10">=</span>
+                  <div className="relative inline-flex flex-col items-center z-10">
+                    <span className="text-emerald-400 font-bold">{fractionA.num * fractionBValue.den}</span>
+                    <span className="w-6 h-0.5 bg-slate-600 my-1"></span>
+                    <span className="text-emerald-400 font-bold">{fractionA.den * fractionBValue.num}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="w-full bg-gradient-to-r from-indigo-500/10 to-transparent border-l-4 border-indigo-500 p-6 rounded-r-2xl mt-6 shadow-sm">
+              <h3 className="text-indigo-400 font-bold mb-2 flex items-center gap-2">
+                <Brain size={20} /> ¿Qué significa gráficamente?
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Mientras que la <strong>Multiplicación</strong> gráficamente significa "tomar una parte de otra parte" (visualizado como el área verde al empalmar cuadrículas de acetatos), la <strong>División</strong> gráficamente representa la pregunta: <em>"¿Cuántas veces cabe la Fracción B dentro de la Fracción A?"</em>. Agrupar y medir cuántas veces algo entra dentro de otra superficie es la esencia de dividir fracciones.
               </p>
             </div>
           </div>
@@ -789,6 +844,10 @@ export default function MultiplicationModule({ onBack, visualShape, onShapeChang
           </div>
         )}
 
+              <DailyLifeUses uses={[
+    { title: "Ajustar Recetas de Cocina", description: "Si una receta para 4 personas pide 3/4 de taza de harina, y la prepararás para la mitad (2 personas), multiplicas (3/4) × (1/2) para saber que necesitas 3/8 de taza." },
+    { title: "Repartición Constante", description: "¿Cuántos vasos de 1/4 de litro puedes llenar si compras un refresco de 2 litros y medio (5/2)? Dividir fracciones (5/2 ÷ 1/4) te dará directamente el resultado real (10 vasos)." }
+  ]} />
       </main>
     </div>
   );

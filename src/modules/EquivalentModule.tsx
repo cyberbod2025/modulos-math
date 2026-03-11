@@ -4,6 +4,7 @@ import { FractionInput } from '../components/FractionInput';
 import { FractionVisual } from '../components/FractionVisual';
 import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { ArrowLeft, Equal, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 import { VisualShape } from '../types/visual';
 
 interface Props {
@@ -338,6 +339,10 @@ export default function EquivalentModule({ onBack, visualShape, onShapeChange }:
             </div>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Cortar Comida Equitativamente", description: "Si partes una pizza en 8 rebanadas y tomas 4 (4/8), has comido exactamente lo mismo que si la partes a la mitad y te comes 1/2." },
+    { title: "Lectura Musical", description: "Una nota blanca equivale a dos negras, y una negra a dos corcheas. Toda la música occidental está basada en fracciones equivalentes exactas." }
+  ]} />
       </main>
     </div>
   );

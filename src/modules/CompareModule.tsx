@@ -4,6 +4,7 @@ import { FractionInput } from '../components/FractionInput';
 import { FractionVisual } from '../components/FractionVisual';
 import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { ArrowLeft, ArrowLeftRight, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 import { VisualShape } from '../types/visual';
 
 interface Props {
@@ -282,6 +283,10 @@ export default function CompareModule({ onBack, visualShape, onShapeChange }: Pr
             </div>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Descuentos en Compras", description: "¿Qué es mejor, que te descuenten el 30% (3/10) o 'una tercera parte' (1/3) del precio final? Saber comparar fracciones evita que te engañen en las tiendas." },
+    { title: "Herramientas Mecánicas", description: "Si una tuerca es de 3/8 de pulgada y tu llave es de 5/16, debes saber cuál es mayor para saber si te servirá o necesitas otra." }
+  ]} />
       </main>
     </div>
   );

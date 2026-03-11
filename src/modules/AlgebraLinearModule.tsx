@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Compass, Brain, ArrowLeft, RefreshCw, Brackets, CheckCircle2, ArrowRight, Scale } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 
 interface Props {
   onBack: () => void;
@@ -344,6 +345,10 @@ export default function AlgebraLinearModule({ onBack }: Props) {
           </div>
         )}
 
+              <DailyLifeUses uses={[
+    { title: "Metas de Ahorro", description: "Si quieres comprar una consola de $5,000, tienes $1,000 y ahorras $500 a la semana, resuelves la ecuación 500x + 1000 = 5000 para saber exactamente en cuántas semanas la tendrás." },
+    { title: "Velocidad y Tiempo", description: "Para calcular a qué hora debes salir de tu casa para llegar a una cita calculas una ecuación lineal mentalmente considerando la distancia y tú velocidad promedio." }
+  ]} />
       </main>
     </div>
   );

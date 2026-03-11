@@ -4,6 +4,7 @@ import { FractionInput } from '../components/FractionInput';
 import { FractionVisual } from '../components/FractionVisual';
 import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { ArrowLeft, PieChart, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 import { VisualShape } from '../types/visual';
 
 interface Props {
@@ -258,6 +259,10 @@ export default function PartWholeModule({ onBack, visualShape, onShapeChange }: 
             </div>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Porcentajes Especiales", description: "Saber que 25% es 1/4 y que 50% es 1/2 te permite calcular rápidamente descuentos mentales o baterías restantes en tu celular (ej. queda 1/4 de batería)." },
+    { title: "Compartir Ganancias", description: "Al repartir acciones de una empresa o dividir la herencia de un terreno, se define qué fracción del pastel total ('el todo') le toca a cada parte." }
+  ]} />
       </main>
     </div>
   );

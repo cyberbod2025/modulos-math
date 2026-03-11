@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Compass, Brain, ArrowLeft, RefreshCw, Layers, MinusCircle, PlusCircle, ArrowRight, CheckCircle2, XSquare } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 
 interface Props {
   onBack: () => void;
@@ -315,6 +316,10 @@ export default function IntegersReductionModule({ onBack }: Props) {
           </div>
         )}
 
+              <DailyLifeUses uses={[
+    { title: "Finanzas Personales", description: "Cada que recibes tu salario o mesada (positivo) y pagas un servicio o comida (negativo), tu saldo bancario hace una reducción de números enteros." },
+    { title: "Puntuación en Videojuegos", description: "Ganas +500 puntos por completar un nivel, pero si fallas te penalizan con -200 puntos. Tu puntaje total es la suma matemática de ambos enteros." }
+  ]} />
       </main>
     </div>
   );

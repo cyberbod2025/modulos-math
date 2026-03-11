@@ -5,6 +5,7 @@ import { MathEquation } from '../components/MathEquation';
 import { FractionVisual } from '../components/FractionVisual';
 import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { ArrowRight, PlusSquare, Compass, Brain, ArrowLeft, CheckCircle2, MinusSquare, XSquare } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 import { VisualShape } from '../types/visual';
 
 interface Props {
@@ -551,6 +552,10 @@ export default function AddSubModule({ onBack, visualShape, onShapeChange }: Pro
             </div>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Manejo del Tiempo", description: "Si sumas 1/2 hora de estudio y 3/4 de hora de ejercicio, necesitas sumar fracciones para saber que usaste 1 hora y cuarto (5/4) de tu día en total." },
+    { title: "Carpintería y Construcción", description: "Al medir maderas o tuberías, los albañiles y carpinteros suman y restan medidas como 3/8 de pulgada o 1/16 de pulgada constantemente." }
+  ]} />
       </main>
     </div>
   );

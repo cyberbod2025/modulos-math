@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Compass, Brain, ArrowLeft, ArrowRight, CheckCircle2, Navigation, MoveHorizontal, XSquare } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 
 interface Props {
   onBack: () => void;
@@ -388,6 +389,10 @@ export default function IntegersIntroModule({ onBack }: Props) {
             </div>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Temperaturas", description: "Para medir el frío extremo o entender cómo se conservan los alimentos en congelación, necesitamos temperaturas bajo cero (números negativos)." },
+    { title: "Elevación y Submarinos", description: "Las ciudades se miden en altitud 'sobre el nivel del mar' (positivos), pero los submarinos y fosas oceánicas se miden 'bajo el nivel del mar' (negativos)." }
+  ]} />
       </main>
     </div>
   );

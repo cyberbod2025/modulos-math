@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Compass, Brain, ArrowLeft, RefreshCw, Maximize, Orbit, CheckCircle2, Navigation, ArrowRight } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 
 interface Props {
   onBack: () => void;
@@ -346,6 +347,10 @@ export default function AlgebraSystemsModule({ onBack }: Props) {
             </AnimatePresence>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Elegir Planes Telefónicos", description: "La Empresa A cobra $100 fijos + $1 por mega. La Empresa B cobra $0 fijos pero $3 por mega. Con un sistema de ecuaciones encuentras en qué punto exacto te conviene cambiar de compañía." },
+    { title: "Logística y Negocios", description: "Determinar cuántos camiones chicos y cuántos grandes se necesitan enviar para llevar exactamente 500 cajas, si unos cargan 30 y otros 50 cajas (optimizando costos)." }
+  ]} />
       </main>
     </div>
   );

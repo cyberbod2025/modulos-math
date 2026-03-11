@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Compass, Brain, ArrowLeft, RefreshCw, Layers, Cpu, ArrowDown } from 'lucide-react';
+import { DailyLifeUses } from '../components/DailyLifeUses';
 
 interface Props {
   onBack: () => void;
@@ -277,6 +278,10 @@ export default function AlgebraLangModule({ onBack }: Props) {
             </div>
           </div>
         )}
+              <DailyLifeUses uses={[
+    { title: "Hojas de Cálculo (Excel)", description: "Cuando creas una fórmula en una celda como '=A1*2 + 5', estás usando literalmente lenguaje algebraico para que la máquina haga el trabajo pesado." },
+    { title: "Presupuestos Dinámicos", description: "Si tienes un negocio, pensar en 'Costo = (Precio de material × Cantidad) + Envío' te permite usar el álgebra para predecir gastos." }
+  ]} />
       </main>
     </div>
   );
