@@ -1,13 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FractionInput } from '../components/FractionInput';
+import { FractionVisual } from '../components/FractionVisual';
+import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { ArrowLeft, PieChart, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
+import { VisualShape } from '../types/visual';
 
 interface Props {
   onBack: () => void;
+  visualShape: VisualShape;
+  onShapeChange: (shape: VisualShape) => void;
 }
 
-export default function PartWholeModule({ onBack }: Props) {
+export default function PartWholeModule({ onBack, visualShape, onShapeChange }: Props) {
   const [mode, setMode] = useState<'explore' | 'practice'>('explore');
   const [difficulty, setDifficulty] = useState<'facil' | 'medio' | 'dificil'>('facil');
   
@@ -67,46 +72,14 @@ export default function PartWholeModule({ onBack }: Props) {
     }
   };
 
-  const renderFractionVisual = (num: number, den: number, color: string) => {
-    const wholes = Math.max(1, Math.ceil(num / den));
-    return (
-      <div className="flex flex-wrap gap-4 justify-center">
-        {Array.from({ length: wholes }).map((_, wIndex) => {
-          const partsInThisWhole = Math.min(den, Math.max(0, num - wIndex * den));
-          return (
-            <div
-              key={wIndex}
-              className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(236,72,153,0.1)] p-1 aspect-square"
-              style={{ width: 'clamp(120px, 28vw, 192px)' }}
-            >
-              <div className="grid gap-1 w-full h-full" style={{
-                gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(den))}, minmax(0, 1fr))`,
-                gridTemplateRows: `repeat(${Math.ceil(den / Math.ceil(Math.sqrt(den)))}, minmax(0, 1fr))`
-              }}>
-                {Array.from({ length: den }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: i * 0.05 }}
-                    className={`rounded-sm border ${i < partsInThisWhole ? color : 'bg-slate-800/50 border-slate-700'}`}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-pink-500/30 pb-20">
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-pink-500/30 pb-4">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-3 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <button onClick={onBack} className="text-slate-400 hover:text-pink-400 transition-colors p-2 -ml-2">
+            <button onClick={onBack} className="text-slate-400 hover:text-pink-400 transition-colors p-2 -ml-2 flex items-center gap-2" title="Volver al menú">
               <ArrowLeft size={24} />
+              <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Menú</span>
             </button>
             <div className="w-10 h-10 bg-pink-500/20 border border-pink-500 rounded-xl flex items-center justify-center text-pink-400 font-bold shadow-[0_0_15px_rgba(236,72,153,0.3)]">
               <PieChart size={24} />
@@ -135,14 +108,15 @@ export default function PartWholeModule({ onBack }: Props) {
                 <span>Práctica</span>
               </button>
             </div>
+            <VisualShapeToggle value={visualShape} onChange={onShapeChange} />
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-4">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-1">
         {mode === 'explore' && (
-          <div className="w-full max-w-4xl bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-6 sm:p-10 flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
-            <div className="mb-12 flex flex-col items-center gap-6">
+          <div className="w-full max-w-4xl bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+            <div className="mb-8 flex flex-col items-center gap-6">
               <h2 className="text-2xl font-bold text-slate-200">Define tu fracción</h2>
               <FractionInput 
                 value={fraction} 
@@ -153,8 +127,8 @@ export default function PartWholeModule({ onBack }: Props) {
               />
             </div>
 
-            <div className="mb-12">
-              {renderFractionVisual(fraction.num, fraction.den, 'bg-pink-400 border-pink-500')}
+            <div className="mb-8">
+              <FractionVisual num={fraction.num} den={fraction.den} colorClass="bg-pink-400 border-pink-500" shape={visualShape} />
             </div>
 
             <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 max-w-2xl text-center">
@@ -201,12 +175,12 @@ export default function PartWholeModule({ onBack }: Props) {
               </div>
             </div>
 
-            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-8 sm:p-12 w-full flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-4 sm:p-6 w-full flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
               <h2 className="text-2xl font-black text-slate-200 mb-8">¿Qué fracción representa la imagen?</h2>
               
-              <div className="mb-12">
-                {renderFractionVisual(fraction.num, fraction.den, 'bg-pink-400 border-pink-500')}
-              </div>
+            <div className="mb-12">
+              <FractionVisual num={fraction.num} den={fraction.den} colorClass="bg-pink-400 border-pink-500" shape={visualShape} />
+            </div>
 
               {practiceStatus === 'question' ? (
                 <div className="flex flex-col items-center gap-2 mb-8">
@@ -277,6 +251,10 @@ export default function PartWholeModule({ onBack }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <p className="text-center text-sm text-slate-400 mt-8">
+                El denominador indica en cuántas partes iguales se divide el entero.
+              </p>
             </div>
           </div>
         )}

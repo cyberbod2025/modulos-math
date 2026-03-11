@@ -51,7 +51,7 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
         y2={orientation === 'vertical' ? height : pos}
         stroke="currentColor"
         strokeWidth="2"
-        className="text-gray-800 opacity-30"
+        className="text-gray-800 opacity-40"
       />
     );
   }
@@ -64,10 +64,11 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
 
   return (
     <motion.div
-      className={`absolute top-0 left-0 overflow-hidden rounded-lg border-2 border-gray-800 shadow-lg ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`absolute top-0 left-0 overflow-hidden rounded-lg shadow-lg ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all`}
       style={{
         width,
         height,
+        mixBlendMode: isOverlapped ? 'multiply' : 'normal',
         ...style,
       }}
       drag={isDraggable}
@@ -81,24 +82,14 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
     >
       {/* Background (Transparent Acetate) */}
       {showBackground && <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />}
-
-      {/* Colored Part (Normal, fades out on overlap) */}
+      
+      {/* Colored Part */}
       <div
         className={`absolute top-0 left-0 ${color} transition-all duration-1000 ease-in-out`}
         style={{
           width: fillWidth,
           height: fillHeight,
-          opacity: isOverlapped ? 0 : 0.85,
-        }}
-      />
-
-      {/* Colored Part (Multiply, fades in on overlap) */}
-      <div
-        className={`absolute top-0 left-0 ${color} mix-blend-multiply transition-all duration-1000 ease-in-out`}
-        style={{
-          width: fillWidth,
-          height: fillHeight,
-          opacity: isOverlapped ? 1 : 0,
+          opacity: 0.85,
         }}
       />
 

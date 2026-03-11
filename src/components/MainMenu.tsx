@@ -12,7 +12,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelect }) => {
     { id: 'compare', title: 'Comparación (>, <, =)', icon: ArrowLeftRight, color: 'text-yellow-400', border: 'border-yellow-500', bg: 'bg-yellow-500/10', glow: 'hover:shadow-[0_0_30px_rgba(234,179,8,0.5)]' },
     { id: 'equivalent', title: 'Fracciones Equivalentes', icon: Equal, color: 'text-emerald-400', border: 'border-emerald-500', bg: 'bg-emerald-500/10', glow: 'hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]' },
     { id: 'add-sub', title: 'Suma y Resta', icon: PlusSquare, color: 'text-blue-400', border: 'border-blue-500', bg: 'bg-blue-500/10', glow: 'hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' },
-    { id: 'mult-div', title: 'Multiplicación y División', icon: XSquare, color: 'text-cyan-400', border: 'border-cyan-500', bg: 'bg-cyan-500/10', glow: 'hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]', highlight: true },
+    { id: 'mult-div', title: 'Multiplicación y División', icon: XSquare, color: 'text-cyan-400', border: 'border-cyan-500', bg: 'bg-cyan-500/10', glow: 'hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]' },
   ];
 
   return (
@@ -49,13 +49,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelect }) => {
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelect(mod.id)}
-              className={`relative flex flex-col items-center justify-center p-8 rounded-2xl border-2 ${mod.border} ${mod.bg} backdrop-blur-sm transition-all duration-300 ${mod.glow} group ${mod.highlight ? 'md:col-span-2 lg:col-span-1 lg:col-start-2' : ''}`}
+              className={`relative flex flex-col items-center justify-center p-8 rounded-2xl border-2 ${mod.border} ${mod.bg} backdrop-blur-sm transition-all duration-300 ${mod.glow} group`}
             >
-              {mod.highlight && (
-                <div className="absolute -top-3 bg-cyan-500 text-slate-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(6,182,212,0.8)]">
-                  Módulo Activo
-                </div>
-              )}
               <Icon size={48} className={`${mod.color} mb-4 group-hover:animate-pulse`} />
               <h2 className={`text-xl font-bold text-center ${mod.color} drop-shadow-[0_0_8px_currentColor]`}>
                 {mod.title}

@@ -4,14 +4,18 @@ import { FractionInput } from '../components/FractionInput';
 import { AcetateLayer } from '../components/AcetateLayer';
 import { MathEquation } from '../components/MathEquation';
 import { Explanation } from '../components/Explanation';
+import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { PracticeExplanation } from '../components/PracticeExplanation';
 import { RefreshCw, ArrowRight, Layers, CheckCircle2, Compass, Brain, ArrowLeft, XSquare } from 'lucide-react';
+import { VisualShape } from '../types/visual';
 
 interface Props {
   onBack: () => void;
+  visualShape: VisualShape;
+  onShapeChange: (shape: VisualShape) => void;
 }
 
-export default function MultiplicationModule({ onBack }: Props) {
+export default function MultiplicationModule({ onBack, visualShape, onShapeChange }: Props) {
   const [operation, setOperation] = useState<'mult' | 'div'>('mult');
   const [mode, setMode] = useState<'explore' | 'practice'>('explore');
   const [multType, setMultType] = useState<'frac-frac' | 'frac-entero'>('frac-frac');
@@ -28,26 +32,27 @@ export default function MultiplicationModule({ onBack }: Props) {
   const [wholeNumber, setWholeNumber] = useState(3);
   
   const [step, setStep] = useState(0); // 0: Input, 1: Show A, 2: Show B, 3: Overlap
-  const [showExplanation, setShowExplanation] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = useState({ width: 300, height: 300 });
+  const [containerSize, setContainerSize] = useState({ width: 160, height: 160 });
+  const [wholeTileSize, setWholeTileSize] = useState(160);
   const lastProblemKey = useRef('');
 
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
-        const maxByWidth = window.innerWidth - 40;
-        const maxByHeight = window.innerHeight - 260;
-        const width = Math.min(maxByWidth, maxByHeight, 380);
-        const safeWidth = Math.max(200, width);
-        setContainerSize({ width: safeWidth, height: safeWidth });
+        const base = Math.min(Math.max(window.innerWidth * 0.28, 120), 192);
+        const width = visualShape === 'rect' ? base * 1.15 : base;
+        const height = visualShape === 'rect' ? base * 0.85 : base;
+        setContainerSize({ width, height });
       }
+      const tileSize = Math.min(Math.max(window.innerWidth * 0.28, 120), 192);
+      setWholeTileSize(tileSize);
     };
     updateSize();
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
-  }, []);
+  }, [visualShape]);
 
   const generateProblem = (diff: 'facil' | 'medio' | 'dificil') => {
     let minDen = 2, maxDen = 5;
@@ -92,7 +97,6 @@ export default function MultiplicationModule({ onBack }: Props) {
     setStep(0);
     setPracticeAnswer({ num: '', den: '' });
     setPracticeStatus('question');
-    setShowExplanation(false);
     setShowPracticeExplanation(false);
   };
 
@@ -141,7 +145,6 @@ export default function MultiplicationModule({ onBack }: Props) {
 
   const handleReset = () => {
     setStep(0);
-    setShowExplanation(false);
   };
 
   const steps = multType === 'frac-frac' ? [
@@ -161,14 +164,18 @@ export default function MultiplicationModule({ onBack }: Props) {
     num: fractionA.num * fractionBValue.den,
     den: fractionA.den * fractionBValue.num,
   };
+  const wholeTileDims = visualShape === 'rect'
+    ? { width: wholeTileSize * 1.15, height: wholeTileSize * 0.85 }
+    : { width: wholeTileSize, height: wholeTileSize };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500/30 pb-20">
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500/30 pb-4">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-3 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <button onClick={onBack} className="text-slate-400 hover:text-cyan-400 transition-colors p-2 -ml-2">
+            <button onClick={onBack} className="text-slate-400 hover:text-cyan-400 transition-colors p-2 -ml-2 flex items-center gap-2" title="Volver al menú">
               <ArrowLeft size={24} />
+              <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Menú</span>
             </button>
             <div className="w-10 h-10 bg-cyan-500/20 border border-cyan-500 rounded-xl flex items-center justify-center text-cyan-400 font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]">
               <XSquare size={24} />
@@ -197,11 +204,12 @@ export default function MultiplicationModule({ onBack }: Props) {
                 <span>Práctica</span>
               </button>
             </div>
+            <VisualShapeToggle value={visualShape} onChange={onShapeChange} />
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-4">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-1">
         
         {/* Operation + Type Selector */}
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
@@ -254,7 +262,7 @@ export default function MultiplicationModule({ onBack }: Props) {
         {mode === 'explore' && operation === 'mult' && (
           <>
             {/* Step Indicator */}
-            <div className="w-full max-w-2xl mb-12">
+            <div className="w-full max-w-2xl mb-6">
               <div className="flex justify-between items-center relative">
                 <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-800 -z-10 rounded-full" />
                 <motion.div 
@@ -300,7 +308,7 @@ export default function MultiplicationModule({ onBack }: Props) {
             </div>
 
             {/* Input Section */}
-            <div className="w-full max-w-3xl flex flex-col md:flex-row justify-center gap-8 mb-12">
+            <div className="w-full max-w-3xl flex flex-col md:flex-row justify-center gap-8 mb-6">
               <FractionInput
                 label="Fracción A"
                 numerator={fractionA.num}
@@ -408,7 +416,7 @@ export default function MultiplicationModule({ onBack }: Props) {
         )}
 
         {mode === 'practice' && (
-          <div className="w-full max-w-3xl bg-slate-900/50 backdrop-blur-sm p-8 rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-slate-800 mb-12">
+          <div className="w-full max-w-3xl bg-slate-900/50 backdrop-blur-sm p-6 sm:p-8 rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-slate-800 mb-6">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-6">
               <div className="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
                 {(['facil', 'medio', 'dificil'] as const).map(d => (
@@ -613,6 +621,10 @@ export default function MultiplicationModule({ onBack }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <p className="text-center text-sm text-slate-400 mt-8">
+                Multiplicar fracciones es tomar una parte de otra parte. En división, multiplicas por el recíproco.
+              </p>
             </div>
           </div>
         )}
@@ -632,7 +644,7 @@ export default function MultiplicationModule({ onBack }: Props) {
             {multType === 'frac-frac' ? (
               <div 
                 ref={containerRef}
-                className="relative bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.1)] border-4 border-slate-800 touch-none overflow-hidden"
+                className={`relative bg-white shadow-[0_0_40px_rgba(255,255,255,0.1)] border-4 border-slate-800 touch-none overflow-hidden ${visualShape === 'circle' ? 'rounded-full' : 'rounded-2xl'}`}
                 style={{ width: containerSize.width, height: containerSize.height }}
               >
                 <div className="absolute inset-0 bg-white" />
@@ -658,7 +670,7 @@ export default function MultiplicationModule({ onBack }: Props) {
                     scale: step === 3 ? 1 : 1.05
                   }}
                   transition={{ type: "spring", stiffness: 60, damping: 15 }}
-                  style={{ touchAction: 'none' }}
+                  style={{ touchAction: 'none', mixBlendMode: step >= 2 ? 'multiply' : 'normal' }}
                   drag={step === 2}
                   dragConstraints={{ left: -50, right: 50, top: -50, bottom: 50 }}
                   dragElastic={0.1}
@@ -702,8 +714,8 @@ export default function MultiplicationModule({ onBack }: Props) {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: step >= 1 ? 1 : 0, scale: step >= 1 ? 1 : 0.8 }}
                       transition={{ delay: i * 0.1 }}
-                      className="relative bg-white rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] border-2 border-slate-700 overflow-hidden aspect-square"
-                      style={{ width: 'clamp(90px, 18vw, 120px)' }}
+                      className={`relative bg-white shadow-[0_0_20px_rgba(255,255,255,0.1)] border-2 border-slate-700 overflow-hidden ${visualShape === 'circle' ? 'rounded-full' : 'rounded-xl'}`}
+                      style={{ width: `${wholeTileDims.width}px`, height: `${wholeTileDims.height}px` }}
                     >
                       <AcetateLayer
                         numerator={step >= 2 ? fractionA.num : 0}
@@ -711,8 +723,8 @@ export default function MultiplicationModule({ onBack }: Props) {
                         orientation="vertical"
                         color="bg-yellow-400"
                         borderColor="border-yellow-500"
-                        width={120}
-                        height={120}
+                        width={wholeTileDims.width}
+                        height={wholeTileDims.height}
                         isVisible={true}
                       />
                     </motion.div>
@@ -728,8 +740,8 @@ export default function MultiplicationModule({ onBack }: Props) {
                         initial={{ opacity: 0, scale: 0.8, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{ delay: i * 0.1, type: "spring" }}
-                        className="relative bg-white rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] border-2 border-slate-700 overflow-hidden aspect-square"
-                        style={{ width: 'clamp(90px, 18vw, 120px)' }}
+                        className={`relative bg-white shadow-[0_0_20px_rgba(255,255,255,0.1)] border-2 border-slate-700 overflow-hidden ${visualShape === 'circle' ? 'rounded-full' : 'rounded-xl'}`}
+                        style={{ width: `${wholeTileDims.width}px`, height: `${wholeTileDims.height}px` }}
                       >
                         <AcetateLayer
                           numerator={partsInThisWhole}
@@ -737,8 +749,8 @@ export default function MultiplicationModule({ onBack }: Props) {
                           orientation="vertical"
                           color="bg-yellow-400"
                           borderColor="border-yellow-500"
-                          width={120}
-                          height={120}
+                          width={wholeTileDims.width}
+                          height={wholeTileDims.height}
                           isVisible={true}
                         />
                       </motion.div>
@@ -771,19 +783,11 @@ export default function MultiplicationModule({ onBack }: Props) {
           </div>
         )}
 
-        {/* Explanation Section */}
-        <AnimatePresence>
-          {showExplanation && mode === 'explore' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="w-full mt-12"
-            >
-              <Explanation />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {mode === 'explore' && operation === 'mult' && (
+          <div className="w-full mt-12">
+            <Explanation />
+          </div>
+        )}
 
       </main>
     </div>

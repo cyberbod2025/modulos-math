@@ -2,13 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FractionInput } from '../components/FractionInput';
 import { MathEquation } from '../components/MathEquation';
-import { RefreshCw, ArrowRight, PlusSquare, Compass, Brain, ArrowLeft, CheckCircle2, MinusSquare, XSquare } from 'lucide-react';
+import { FractionVisual } from '../components/FractionVisual';
+import { VisualShapeToggle } from '../components/VisualShapeToggle';
+import { ArrowRight, PlusSquare, Compass, Brain, ArrowLeft, CheckCircle2, MinusSquare, XSquare } from 'lucide-react';
+import { VisualShape } from '../types/visual';
 
 interface Props {
   onBack: () => void;
+  visualShape: VisualShape;
+  onShapeChange: (shape: VisualShape) => void;
 }
 
-export default function AddSubModule({ onBack }: Props) {
+export default function AddSubModule({ onBack, visualShape, onShapeChange }: Props) {
   const [mode, setMode] = useState<'explore' | 'practice'>('explore');
   const [operation, setOperation] = useState<'add' | 'sub'>('add');
   const [denType, setDenType] = useState<'same' | 'diff'>('same');
@@ -21,24 +26,10 @@ export default function AddSubModule({ onBack }: Props) {
 
   const [fractionA, setFractionA] = useState({ num: 1, den: 4 });
   const [fractionB, setFractionB] = useState({ num: 2, den: 4 });
+  const [equivalentA, setEquivalentA] = useState({ num: 1, den: 4 });
+  const [equivalentB, setEquivalentB] = useState({ num: 2, den: 4 });
   
-  const [step, setStep] = useState(0); // 0: Input, 1: Show A & B, 2: Common Denominator (if diff), 3: Result
-  
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = useState({ width: 300, height: 300 });
   const lastProblemKey = useRef('');
-
-  useEffect(() => {
-    const updateSize = () => {
-      if (containerRef.current) {
-        const width = Math.min(window.innerWidth - 40, 400);
-        setContainerSize({ width, height: width });
-      }
-    };
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
 
   const generateProblem = (diff: 'facil' | 'medio' | 'dificil') => {
     let minDen = 2, maxDen = 5;
@@ -83,7 +74,6 @@ export default function AddSubModule({ onBack }: Props) {
     setFractionA(nextA);
     setFractionB(nextB);
 
-    setStep(0);
     setPracticeAnswer({ num: '', den: '' });
     setPracticeStatus('question');
   };
@@ -94,7 +84,6 @@ export default function AddSubModule({ onBack }: Props) {
       setScore({ correct: 0, total: 0 });
       generateProblem(difficulty);
     } else {
-      setStep(0);
       setFractionA({ num: 1, den: 4 });
       setFractionB({ num: 2, den: 4 });
       setDenType('same');
@@ -103,7 +92,6 @@ export default function AddSubModule({ onBack }: Props) {
 
   const handleOperationSwitch = (op: 'add' | 'sub') => {
     setOperation(op);
-    setStep(0);
     if (mode === 'practice') {
       generateProblem(difficulty);
     } else {
@@ -120,7 +108,6 @@ export default function AddSubModule({ onBack }: Props) {
 
   const handleDenTypeSwitch = (type: 'same' | 'diff') => {
     setDenType(type);
-    setStep(0);
     if (mode === 'practice') {
       generateProblem(difficulty);
     } else {
@@ -137,14 +124,19 @@ export default function AddSubModule({ onBack }: Props) {
     generateProblem(newDiff);
   };
 
-  const handleNextStep = () => {
-    const maxStep = denType === 'same' ? 2 : 3;
-    setStep((prev) => Math.min(prev + 1, maxStep));
-  };
+  useEffect(() => {
+    setEquivalentA({ num: fractionA.num, den: fractionA.den });
+  }, [fractionA.num, fractionA.den]);
 
-  const handleReset = () => {
-    setStep(0);
-  };
+  useEffect(() => {
+    setEquivalentB({ num: fractionB.num, den: fractionB.den });
+  }, [fractionB.num, fractionB.den]);
+
+  useEffect(() => {
+    if (denType === 'same') {
+      setFractionB((prev) => (prev.den === fractionA.den ? prev : { ...prev, den: fractionA.den }));
+    }
+  }, [denType, fractionA.den]);
 
   const checkAnswer = () => {
     const pNum = parseInt(practiceAnswer.num);
@@ -177,52 +169,36 @@ export default function AddSubModule({ onBack }: Props) {
     }
   };
 
-  const steps = denType === 'same' ? [
-    { title: "Definir Valores", description: "Introduce las fracciones." },
-    { title: "Visualizar", description: "Observa las representaciones." },
-    { title: "Resultado Final", description: "Combina las partes." },
-  ] : [
-    { title: "Definir Valores", description: "Introduce las fracciones." },
-    { title: "Visualizar", description: "Observa las representaciones." },
-    { title: "Denominador Común", description: "Encuentra fracciones equivalentes." },
-    { title: "Resultado Final", description: "Combina las partes." },
-  ];
-
-  // Helper to render a fraction grid
-  const renderGrid = (num: number, den: number, color: string, commonDen?: number) => {
-    const actualDen = commonDen || den;
-    const actualNum = commonDen ? (num * (commonDen / den)) : num;
-    
-    return (
-      <div className="grid gap-1 w-full h-full p-2" style={{ 
-        gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(actualDen))}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${Math.ceil(actualDen / Math.ceil(Math.sqrt(actualDen)))}, minmax(0, 1fr))`
-      }}>
-        {Array.from({ length: actualDen }).map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: i * 0.05 }}
-            className={`rounded-md border-2 ${i < actualNum ? color : 'bg-slate-800/50 border-slate-700'}`}
-          />
-        ))}
-      </div>
-    );
+  const areEquivalent = (left: { num: number; den: number }, right: { num: number; den: number }) => {
+    return left.num * right.den === right.num * left.den;
   };
 
-  const commonDen = denType === 'diff' ? fractionA.den * fractionB.den : fractionA.den;
-  const aNumCommon = denType === 'diff' ? fractionA.num * fractionB.den : fractionA.num;
-  const bNumCommon = denType === 'diff' ? fractionB.num * fractionA.den : fractionB.num;
-  const resultNum = operation === 'add' ? aNumCommon + bNumCommon : aNumCommon - bNumCommon;
+  const isEquivalentA = areEquivalent(equivalentA, fractionA);
+  const isEquivalentB = areEquivalent(equivalentB, fractionB);
+  const hasCommonDen = equivalentA.den === equivalentB.den;
+  const canOperate = isEquivalentA && isEquivalentB && hasCommonDen;
+
+  const applyMultiplier = (target: 'a' | 'b', mult: number) => {
+    if (target === 'a') {
+      setEquivalentA((prev) => ({ num: prev.num * mult, den: prev.den * mult }));
+      return;
+    }
+    setEquivalentB((prev) => ({ num: prev.num * mult, den: prev.den * mult }));
+  };
+
+  // Helper to render a fraction grid
+  const resultNum = operation === 'add'
+    ? equivalentA.num + equivalentB.num
+    : equivalentA.num - equivalentB.num;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30 pb-20">
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30 pb-4">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-3 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <button onClick={onBack} className="text-slate-400 hover:text-blue-400 transition-colors p-2 -ml-2">
+            <button onClick={onBack} className="text-slate-400 hover:text-blue-400 transition-colors p-2 -ml-2 flex items-center gap-2" title="Volver al menú">
               <ArrowLeft size={24} />
+              <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Menú</span>
             </button>
             <div className="w-10 h-10 bg-blue-500/20 border border-blue-500 rounded-xl flex items-center justify-center text-blue-400 font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)]">
               <PlusSquare size={24} />
@@ -251,11 +227,12 @@ export default function AddSubModule({ onBack }: Props) {
                 <span>Práctica</span>
               </button>
             </div>
+            <VisualShapeToggle value={visualShape} onChange={onShapeChange} />
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-4">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-1">
         
         {/* Type Selectors */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8 w-full max-w-2xl justify-center">
@@ -307,46 +284,19 @@ export default function AddSubModule({ onBack }: Props) {
         </div>
 
         {mode === 'explore' && (
-          <>
-            {/* Step Indicator */}
-            <div className="w-full max-w-2xl mb-12">
-              <div className="flex justify-between items-center relative">
-                <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-800 -z-10 rounded-full" />
-                <motion.div 
-                  className="absolute top-1/2 left-0 h-1 bg-blue-500 -z-10 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" 
-                  initial={{ width: '0%' }}
-                  animate={{ width: `${(step / (steps.length - 1)) * 100}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-                {steps.map((s, i) => (
-                  <div key={i} className="flex flex-col items-center relative group">
-                    <motion.div 
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors duration-300 ${
-                        i <= step 
-                          ? 'bg-slate-900 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]' 
-                          : 'bg-slate-900 border-slate-700 text-slate-500'
-                      }`}
-                      animate={i === step ? { scale: [1, 1.1, 1] } : {}}
-                      transition={{ repeat: Infinity, duration: 2 }}
-                    >
-                      {i + 1}
-                    </motion.div>
-                    <div className="absolute top-14 w-32 text-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <p className="text-xs font-bold text-slate-300">{s.title}</p>
-                      <p className="text-[10px] text-slate-500">{s.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="w-full max-w-5xl bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+            <div className="w-full mb-10">
+              <p className="text-center text-slate-300 text-lg leading-relaxed">
+                Para <strong className="text-blue-400">sumar o restar fracciones</strong> necesitamos partes del mismo tamaño.
+                Por eso se <strong className="text-blue-400">igualan los denominadores</strong>. El método de la <strong className="text-blue-400">mariposa</strong> funciona porque convierte ambas fracciones a un denominador común.
+              </p>
             </div>
 
-            {/* Main Interactive Area */}
-            <div className="w-full max-w-4xl bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-6 sm:p-10 flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
-              
-              {/* Equation Display */}
-              <div className="mb-12 flex items-center justify-center gap-4 sm:gap-8 text-3xl sm:text-5xl font-black">
-                {step === 0 ? (
-                  <>
+            <div className="grid w-full gap-8 lg:grid-cols-2">
+              <div className="bg-slate-950/40 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-slate-200 mb-4">Fracciones originales</h3>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+                  <div className="flex flex-col items-center gap-4">
                     <FractionInput 
                       value={fractionA} 
                       onChange={setFractionA} 
@@ -354,7 +304,12 @@ export default function AddSubModule({ onBack }: Props) {
                       borderColor="border-yellow-500/50" 
                       allowImproper
                     />
-                    <span className="text-slate-500">{operation === 'add' ? '+' : '-'}</span>
+                    <FractionVisual num={fractionA.num} den={fractionA.den} colorClass="bg-yellow-400 border-yellow-500" shape={visualShape} />
+                  </div>
+
+                  <span className="text-4xl text-slate-600 font-black">{operation === 'add' ? '+' : '-'}</span>
+
+                  <div className="flex flex-col items-center gap-4">
                     <FractionInput 
                       value={fractionB} 
                       onChange={setFractionB} 
@@ -363,90 +318,97 @@ export default function AddSubModule({ onBack }: Props) {
                       disabledDen={denType === 'same'}
                       allowImproper
                     />
-                  </>
-                ) : (
-                  <MathEquation 
-                    fractionA={fractionA} 
-                    fractionB={fractionB} 
-                    operation={operation === 'add' ? '+' : '-'}
-                    result={{ num: resultNum, den: commonDen }} 
-                    showResult={step === (steps.length - 1)} 
-                    commonDen={step >= 2 && denType === 'diff' ? commonDen : undefined}
-                    aNumCommon={aNumCommon}
-                    bNumCommon={bNumCommon}
-                  />
-                )}
+                    <FractionVisual num={fractionB.num} den={fractionB.den} colorClass="bg-cyan-400 border-cyan-500" shape={visualShape} />
+                  </div>
+                </div>
               </div>
 
-              {/* Visualizations */}
-              {step >= 1 && (
-                <div className="flex flex-wrap justify-center gap-8 items-center w-full">
-                  {/* Fraction A */}
+              <div className="bg-slate-950/40 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-slate-200 mb-2">Fracciones equivalentes</h3>
+                <p className="text-sm text-slate-400 mb-6">
+                  Ajusta numerador y denominador para que ambas fracciones tengan el mismo denominador.
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                   <div className="flex flex-col items-center gap-4">
-                     <div className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(250,204,21,0.1)] aspect-square" style={{ width: 'clamp(120px, 28vw, 192px)' }}>
-                       {renderGrid(fractionA.num, fractionA.den, 'bg-yellow-400 border-yellow-500', step >= 2 && denType === 'diff' ? commonDen : undefined)}
-                     </div>
-                    <span className="text-yellow-400 font-bold">
-                      {step >= 2 && denType === 'diff' ? `${aNumCommon}/${commonDen}` : `${fractionA.num}/${fractionA.den}`}
+                    <FractionInput 
+                      value={equivalentA} 
+                      onChange={setEquivalentA} 
+                      color="text-yellow-400" 
+                      borderColor="border-yellow-500/50" 
+                      allowImproper
+                    />
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      {[2, 3, 4].map((mult) => (
+                        <button
+                          key={`a-${mult}`}
+                          onClick={() => applyMultiplier('a', mult)}
+                          className="px-3 py-1 text-xs font-bold rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700"
+                        >
+                          × {mult}
+                        </button>
+                      ))}
+                    </div>
+                    <FractionVisual num={equivalentA.num} den={equivalentA.den} colorClass="bg-yellow-400 border-yellow-500" shape={visualShape} />
+                    <span className={`text-xs font-bold uppercase tracking-wider ${isEquivalentA ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      {isEquivalentA ? 'Equivalente' : 'No equivalente'}
                     </span>
                   </div>
 
                   <span className="text-4xl text-slate-600 font-black">{operation === 'add' ? '+' : '-'}</span>
 
-                  {/* Fraction B */}
                   <div className="flex flex-col items-center gap-4">
-                     <div className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_20px_rgba(6,182,212,0.1)] aspect-square" style={{ width: 'clamp(120px, 28vw, 192px)' }}>
-                       {renderGrid(fractionB.num, fractionB.den, 'bg-cyan-400 border-cyan-500', step >= 2 && denType === 'diff' ? commonDen : undefined)}
-                     </div>
-                    <span className="text-cyan-400 font-bold">
-                      {step >= 2 && denType === 'diff' ? `${bNumCommon}/${commonDen}` : `${fractionB.num}/${fractionB.den}`}
+                    <FractionInput 
+                      value={equivalentB} 
+                      onChange={setEquivalentB} 
+                      color="text-cyan-400" 
+                      borderColor="border-cyan-500/50" 
+                      allowImproper
+                    />
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      {[2, 3, 4].map((mult) => (
+                        <button
+                          key={`b-${mult}`}
+                          onClick={() => applyMultiplier('b', mult)}
+                          className="px-3 py-1 text-xs font-bold rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700"
+                        >
+                          × {mult}
+                        </button>
+                      ))}
+                    </div>
+                    <FractionVisual num={equivalentB.num} den={equivalentB.den} colorClass="bg-cyan-400 border-cyan-500" shape={visualShape} />
+                    <span className={`text-xs font-bold uppercase tracking-wider ${isEquivalentB ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      {isEquivalentB ? 'Equivalente' : 'No equivalente'}
                     </span>
                   </div>
-
-                  {step === (steps.length - 1) && (
-                    <>
-                      <span className="text-4xl text-slate-600 font-black">=</span>
-                      {/* Result */}
-                      <div className="flex flex-col items-center gap-4">
-                        <motion.div 
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-[0_0_30px_rgba(16,185,129,0.2)] aspect-square"
-                          style={{ width: 'clamp(120px, 28vw, 192px)' }}
-                        >
-                          {renderGrid(resultNum, commonDen, 'bg-emerald-400 border-emerald-500')}
-                        </motion.div>
-                        <span className="text-emerald-400 font-bold">
-                          {resultNum}/{commonDen}
-                        </span>
-                      </div>
-                    </>
-                  )}
                 </div>
-              )}
 
-              {/* Controls */}
-              <div className="flex flex-wrap justify-center gap-4 mt-12 w-full max-w-md">
-                <button
-                  onClick={handleReset}
-                  className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 border border-slate-700 text-slate-300 rounded-full font-bold hover:bg-slate-700 transition-all active:scale-95"
-                >
-                  <RefreshCw size={18} />
-                  Reiniciar
-                </button>
+                <div className="mt-6 text-center">
+                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider border ${hasCommonDen ? 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' : 'text-slate-500 border-slate-700 bg-slate-900/60'}`}>
+                    {hasCommonDen ? 'Denominadores iguales' : 'Denominadores distintos'}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-                {step < steps.length - 1 && (
-                  <button
-                    onClick={handleNextStep}
-                    className="flex-[2] min-w-[160px] flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-500 transition-all shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-                  >
-                    {step === 0 ? 'Visualizar' : step === 1 && denType === 'diff' ? 'Denominador Común' : 'Ver Resultado'}
-                    <ArrowRight size={18} />
-                  </button>
+            <div className="w-full mt-10">
+              <MathEquation
+                fractionA={equivalentA}
+                fractionB={equivalentB}
+                operation={operation === 'add' ? '+' : '-'}
+                result={{ num: resultNum, den: equivalentA.den }}
+                showResult={canOperate}
+              />
+
+              <div className="text-center text-sm font-bold uppercase tracking-wider">
+                {canOperate ? (
+                  <span className="text-emerald-400">Muy bien, ya son equivalentes. Puedes sumar o restar.</span>
+                ) : (
+                  <span className="text-slate-500">Iguala los denominadores para desbloquear la suma o resta.</span>
                 )}
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {mode === 'practice' && (
@@ -484,7 +446,7 @@ export default function AddSubModule({ onBack }: Props) {
               </div>
             </div>
 
-            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-8 sm:p-12 w-full flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)] relative overflow-hidden">
+            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-4 sm:p-6 w-full flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)] relative overflow-hidden">
               <h2 className="text-2xl font-black text-slate-200 mb-8">Resuelve la operación:</h2>
               
               <div className="flex items-center justify-center gap-4 sm:gap-8 text-4xl sm:text-6xl font-black mb-12">
@@ -575,6 +537,17 @@ export default function AddSubModule({ onBack }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <div className="mt-10 w-full">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                  <FractionVisual num={fractionA.num} den={fractionA.den} colorClass="bg-yellow-400 border-yellow-500" shape={visualShape} />
+                  <span className="text-4xl text-slate-600 font-black">{operation === 'add' ? '+' : '-'}</span>
+                  <FractionVisual num={fractionB.num} den={fractionB.den} colorClass="bg-cyan-400 border-cyan-500" shape={visualShape} />
+                </div>
+                <p className="text-center text-sm text-slate-400 mt-6">
+                  Primero iguala los denominadores mentalmente, luego suma o resta las partes.
+                </p>
+              </div>
             </div>
           </div>
         )}

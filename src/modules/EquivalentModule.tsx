@@ -1,13 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FractionInput } from '../components/FractionInput';
+import { FractionVisual } from '../components/FractionVisual';
+import { VisualShapeToggle } from '../components/VisualShapeToggle';
 import { ArrowLeft, Equal, Compass, Brain, CheckCircle2, XSquare, ArrowRight, RefreshCw } from 'lucide-react';
+import { VisualShape } from '../types/visual';
 
 interface Props {
   onBack: () => void;
+  visualShape: VisualShape;
+  onShapeChange: (shape: VisualShape) => void;
 }
 
-export default function EquivalentModule({ onBack }: Props) {
+export default function EquivalentModule({ onBack, visualShape, onShapeChange }: Props) {
   const [mode, setMode] = useState<'explore' | 'practice'>('explore');
   const [difficulty, setDifficulty] = useState<'facil' | 'medio' | 'dificil'>('facil');
   
@@ -85,46 +90,14 @@ export default function EquivalentModule({ onBack }: Props) {
     }
   };
 
-  const renderFractionVisual = (num: number, den: number, color: string) => {
-    const wholes = Math.max(1, Math.ceil(num / den));
-    return (
-      <div className="flex flex-wrap gap-2 justify-center">
-        {Array.from({ length: wholes }).map((_, wIndex) => {
-          const partsInThisWhole = Math.min(den, Math.max(0, num - wIndex * den));
-          return (
-            <div
-              key={wIndex}
-              className="bg-slate-900 rounded-xl border-2 border-slate-700 overflow-hidden relative shadow-lg p-1 aspect-square"
-              style={{ width: 'clamp(100px, 22vw, 160px)' }}
-            >
-              <div className="grid gap-1 w-full h-full" style={{
-                gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(den))}, minmax(0, 1fr))`,
-                gridTemplateRows: `repeat(${Math.ceil(den / Math.ceil(Math.sqrt(den)))}, minmax(0, 1fr))`
-              }}>
-                {Array.from({ length: den }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: i * 0.05 }}
-                    className={`rounded-sm border ${i < partsInThisWhole ? color : 'bg-slate-800/50 border-slate-700'}`}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30 pb-20">
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30 pb-4">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-3 px-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <button onClick={onBack} className="text-slate-400 hover:text-emerald-400 transition-colors p-2 -ml-2">
+            <button onClick={onBack} className="text-slate-400 hover:text-emerald-400 transition-colors p-2 -ml-2 flex items-center gap-2" title="Volver al menú">
               <ArrowLeft size={24} />
+              <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Menú</span>
             </button>
             <div className="w-10 h-10 bg-emerald-500/20 border border-emerald-500 rounded-xl flex items-center justify-center text-emerald-400 font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)]">
               <Equal size={24} />
@@ -153,14 +126,15 @@ export default function EquivalentModule({ onBack }: Props) {
                 <span>Práctica</span>
               </button>
             </div>
+            <VisualShapeToggle value={visualShape} onChange={onShapeChange} />
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-4">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col items-center mt-1">
         {mode === 'explore' && (
-          <div className="w-full max-w-4xl bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-6 sm:p-10 flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 mb-12 w-full">
+          <div className="w-full max-w-4xl bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 mb-8 w-full">
               <div className="flex flex-col items-center gap-6">
                 <FractionInput 
                   value={fractionA} 
@@ -169,7 +143,7 @@ export default function EquivalentModule({ onBack }: Props) {
                   borderColor="border-emerald-500/50" 
                   allowImproper
                 />
-                {renderFractionVisual(fractionA.num, fractionA.den, 'bg-emerald-400 border-emerald-500')}
+                <FractionVisual num={fractionA.num} den={fractionA.den} colorClass="bg-emerald-400 border-emerald-500" shape={visualShape} />
               </div>
 
               <div className="flex flex-col items-center gap-4">
@@ -193,7 +167,7 @@ export default function EquivalentModule({ onBack }: Props) {
                   <span className="border-b-4 border-cyan-400/50 px-4 pb-2">{fractionA.num * multiplier}</span>
                   <span className="pt-2">{fractionA.den * multiplier}</span>
                 </div>
-                {renderFractionVisual(fractionA.num * multiplier, fractionA.den * multiplier, 'bg-cyan-400 border-cyan-500')}
+                <FractionVisual num={fractionA.num * multiplier} den={fractionA.den * multiplier} colorClass="bg-cyan-400 border-cyan-500" shape={visualShape} />
               </div>
             </div>
 
@@ -241,8 +215,8 @@ export default function EquivalentModule({ onBack }: Props) {
               </div>
             </div>
 
-            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-8 sm:p-12 w-full flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
-              <h2 className="text-2xl font-black text-slate-200 mb-8">Encuentra el valor faltante</h2>
+            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-4 sm:p-6 w-full flex flex-col items-center shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+              <h2 className="text-2xl font-black text-slate-200 mb-6">Encuentra el valor faltante</h2>
               
               <div className="flex items-center justify-center gap-8 sm:gap-16 mb-12 w-full text-5xl font-black">
                 <div className="flex flex-col items-center text-emerald-400">
@@ -340,6 +314,27 @@ export default function EquivalentModule({ onBack }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <div className="mt-10 w-full">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                  <FractionVisual
+                    num={practiceProblem.numA}
+                    den={practiceProblem.denA}
+                    colorClass="bg-emerald-400 border-emerald-500"
+                    shape={visualShape}
+                  />
+                  <span className="text-4xl text-slate-600 font-black">=</span>
+                  <FractionVisual
+                    num={practiceProblem.numB}
+                    den={practiceProblem.denB}
+                    colorClass="bg-cyan-400 border-cyan-500"
+                    shape={visualShape}
+                  />
+                </div>
+                <p className="text-center text-sm text-slate-400 mt-6">
+                  Dos fracciones equivalentes ocupan la misma parte del entero.
+                </p>
+              </div>
             </div>
           </div>
         )}

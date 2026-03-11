@@ -10,9 +10,11 @@ import AddSubModule from './modules/AddSubModule';
 import PartWholeModule from './modules/PartWholeModule';
 import CompareModule from './modules/CompareModule';
 import EquivalentModule from './modules/EquivalentModule';
+import { VisualShape } from './types/visual';
 
 function App() {
   const [currentModule, setCurrentModule] = useState<string>('menu');
+  const [visualShape, setVisualShape] = useState<VisualShape>('square');
 
   const handleBack = () => setCurrentModule('menu');
 
@@ -21,23 +23,23 @@ function App() {
   }
 
   if (currentModule === 'mult-div') {
-    return <MultiplicationModule onBack={handleBack} />;
+    return <MultiplicationModule onBack={handleBack} visualShape={visualShape} onShapeChange={setVisualShape} />;
   }
 
   if (currentModule === 'add-sub') {
-    return <AddSubModule onBack={handleBack} />;
+    return <AddSubModule onBack={handleBack} visualShape={visualShape} onShapeChange={setVisualShape} />;
   }
 
   if (currentModule === 'part-whole') {
-    return <PartWholeModule onBack={handleBack} />;
+    return <PartWholeModule onBack={handleBack} visualShape={visualShape} onShapeChange={setVisualShape} />;
   }
 
   if (currentModule === 'compare') {
-    return <CompareModule onBack={handleBack} />;
+    return <CompareModule onBack={handleBack} visualShape={visualShape} onShapeChange={setVisualShape} />;
   }
 
   if (currentModule === 'equivalent') {
-    return <EquivalentModule onBack={handleBack} />;
+    return <EquivalentModule onBack={handleBack} visualShape={visualShape} onShapeChange={setVisualShape} />;
   }
 
   return <MainMenu onSelect={setCurrentModule} />;
