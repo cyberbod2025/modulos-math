@@ -14,6 +14,12 @@ import AddSubModule from './modules/AddSubModule';
 import PartWholeModule from './modules/PartWholeModule';
 import CompareModule from './modules/CompareModule';
 import EquivalentModule from './modules/EquivalentModule';
+import IntegersIntroModule from './modules/IntegersIntroModule';
+import IntegersReductionModule from './modules/IntegersReductionModule';
+import IntegersSignsModule from './modules/IntegersSignsModule';
+import AlgebraLangModule from './modules/AlgebraLangModule';
+import AlgebraLinearModule from './modules/AlgebraLinearModule';
+import AlgebraSystemsModule from './modules/AlgebraSystemsModule';
 import { PlaceholderModule } from './modules/PlaceholderModule';
 
 import { VisualShape } from './types/visual';
@@ -56,6 +62,28 @@ function App() {
   }
   if (currentModule === 'equivalent') {
     return <EquivalentModule onBack={handleBackToRational} visualShape={visualShape} onShapeChange={setVisualShape} />;
+  }
+
+  // Integers Modules
+  if (currentModule === 'integers-intro') {
+    return <IntegersIntroModule onBack={handleBackToIntegers} />;
+  }
+  if (currentModule === 'integers-reduction') {
+    return <IntegersReductionModule onBack={handleBackToIntegers} />;
+  }
+  if (currentModule === 'integers-signs') {
+    return <IntegersSignsModule onBack={handleBackToIntegers} />;
+  }
+
+  // Algebra Modules
+  if (currentModule === 'algebra-lang') {
+    return <AlgebraLangModule onBack={handleBackToAlgebra} />;
+  }
+  if (currentModule === 'algebra-linear') {
+    return <AlgebraLinearModule onBack={handleBackToAlgebra} />;
+  }
+  if (currentModule === 'algebra-systems') {
+    return <AlgebraSystemsModule onBack={handleBackToAlgebra} />;
   }
 
   // Variables para Placeholders Modulos Nuevos:
