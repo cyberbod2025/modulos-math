@@ -652,7 +652,7 @@ export default function MultiplicationModule({ onBack, visualShape, onShapeChang
                   numerator={fractionA.num}
                   denominator={fractionA.den}
                   orientation="vertical"
-                  color="bg-yellow-300"
+                  color="bg-[#ffff00]"
                   borderColor="border-yellow-500"
                   width={containerSize.width}
                   height={containerSize.height}
@@ -680,7 +680,7 @@ export default function MultiplicationModule({ onBack, visualShape, onShapeChang
                     numerator={fractionB.num}
                     denominator={fractionB.den}
                     orientation="horizontal"
-                    color="bg-cyan-300"
+                    color="bg-[#00ffff]"
                     borderColor="border-cyan-500"
                     width={containerSize.width}
                     height={containerSize.height}

@@ -81,7 +81,7 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
       transition={{ duration: 0.5 }}
     >
       {/* Background (Transparent Acetate) */}
-      {showBackground && <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />}
+      {showBackground && <div className="absolute inset-0 bg-white/10" />}
       
       {/* Colored Part */}
       <div
@@ -89,7 +89,8 @@ export const AcetateLayer: React.FC<AcetateLayerProps> = ({
         style={{
           width: fillWidth,
           height: fillHeight,
-          opacity: 0.85,
+          opacity: isOverlapped ? 0.9 : 0.85,
+          mixBlendMode: isOverlapped ? 'multiply' : 'normal'
         }}
       />
 
