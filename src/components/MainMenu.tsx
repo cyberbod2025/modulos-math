@@ -1,18 +1,16 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { PieChart, ArrowLeftRight, Equal, PlusSquare, XSquare, Zap } from 'lucide-react';
+import { Zap, PieChart, PlusSquare, Variable } from 'lucide-react';
 
 interface MainMenuProps {
   onSelect: (moduleId: string) => void;
 }
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onSelect }) => {
-  const modules = [
-    { id: 'part-whole', title: 'Fracción como Parte-Todo', icon: PieChart, color: 'text-pink-400', border: 'border-pink-500', bg: 'bg-pink-500/10', glow: 'hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]' },
-    { id: 'compare', title: 'Comparación (>, <, =)', icon: ArrowLeftRight, color: 'text-yellow-400', border: 'border-yellow-500', bg: 'bg-yellow-500/10', glow: 'hover:shadow-[0_0_30px_rgba(234,179,8,0.5)]' },
-    { id: 'equivalent', title: 'Fracciones Equivalentes', icon: Equal, color: 'text-emerald-400', border: 'border-emerald-500', bg: 'bg-emerald-500/10', glow: 'hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]' },
-    { id: 'add-sub', title: 'Suma y Resta', icon: PlusSquare, color: 'text-blue-400', border: 'border-blue-500', bg: 'bg-blue-500/10', glow: 'hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]' },
-    { id: 'mult-div', title: 'Multiplicación y División', icon: XSquare, color: 'text-cyan-400', border: 'border-cyan-500', bg: 'bg-cyan-500/10', glow: 'hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]' },
+  const categories = [
+    { id: 'menu-rational', title: 'Números Racionales (Fracciones)', icon: PieChart, color: 'text-pink-400', border: 'border-pink-500', bg: 'bg-pink-500/10', glow: 'hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]' },
+    { id: 'menu-integers', title: 'Números Enteros', icon: PlusSquare, color: 'text-orange-400', border: 'border-orange-500', bg: 'bg-orange-500/10', glow: 'hover:shadow-[0_0_30px_rgba(249,115,22,0.5)]' },
+    { id: 'menu-algebra', title: 'Álgebra', icon: Variable, color: 'text-fuchsia-400', border: 'border-fuchsia-500', bg: 'bg-fuchsia-500/10', glow: 'hover:shadow-[0_0_30px_rgba(217,70,239,0.5)]' },
   ];
 
   return (
@@ -33,27 +31,27 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelect }) => {
           </h1>
         </div>
         <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
-          Domina las fracciones. Selecciona un módulo de entrenamiento para comenzar.
+          Plataforma de entrenamiento matemático. Selecciona tu ruta de aprendizaje para comenzar.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl z-10">
-        {modules.map((mod, index) => {
-          const Icon = mod.icon;
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl z-10">
+        {categories.map((cat, index) => {
+          const Icon = cat.icon;
           return (
             <motion.button
-              key={mod.id}
+              key={cat.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => onSelect(mod.id)}
-              className={`relative flex flex-col items-center justify-center p-8 rounded-2xl border-2 ${mod.border} ${mod.bg} backdrop-blur-sm transition-all duration-300 ${mod.glow} group`}
+              onClick={() => onSelect(cat.id)}
+              className={`relative flex flex-col items-center justify-center p-8 rounded-2xl border-2 ${cat.border} ${cat.bg} backdrop-blur-sm transition-all duration-300 ${cat.glow} group`}
             >
-              <Icon size={48} className={`${mod.color} mb-4 group-hover:animate-pulse`} />
-              <h2 className={`text-xl font-bold text-center ${mod.color} drop-shadow-[0_0_8px_currentColor]`}>
-                {mod.title}
+              <Icon size={48} className={`${cat.color} mb-4 group-hover:animate-pulse`} />
+              <h2 className={`text-xl font-bold text-center ${cat.color} drop-shadow-[0_0_8px_currentColor]`}>
+                {cat.title}
               </h2>
             </motion.button>
           );
